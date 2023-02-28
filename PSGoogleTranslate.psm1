@@ -59,7 +59,7 @@ function Invoke-GoogleTranslate(
 ) {
     if ($ListOfOneWordReturnType.Contains($ReturnType) -and ($InputObject.Trim().Contains(' ') -or $InputObject.Trim().Contains("`n")))
     {
-        Write-Error "The return type '$ReturnType' only works for single words."
+        Write-Error "The return type '$ReturnType' only works for single words, your input is '$InputObject'."
     }
 
     $sourceLanguageCode, $targetLanguageCode = TryConvertLanguageToCode $SourceLanguage $TargetLanguage
