@@ -58,7 +58,7 @@ function Invoke-GoogleTranslate(
     [ValidateSet('Translation', 'Alternative', 'LanguageDetection', 'LanguageDetectionAsEnglishWord', 'Dictionary', 'Definition', 'Synonym', 'Example')]
     [string] $ReturnType = 'Translation'
 ) {
-    if ($ListOfOneWordReturnType.Contains($ReturnType) -and ($InputObject.Trim().Contains(' ') -or $InputObject.Trim().Contains("`n")))
+    if ($ListOfSingleWordReturnType.Contains($ReturnType) -and ($InputObject.Trim().Contains(' ') -or $InputObject.Trim().Contains("`n")))
     {
         Write-Error "The return type '$ReturnType' only works for single words, your input is '$InputObject'."
     }
@@ -69,9 +69,9 @@ function Invoke-GoogleTranslate(
 
     $sourceLanguageCode, $targetLanguageCode = TryConvertLanguageToCode $SourceLanguage $TargetLanguage
 
-    $query = [uri]::EscapeDataString($InputObject)
-    
     $returnTypeAsQueryParameter = GetReturnTypeAsQueryParameter -ReturnType $ReturnType
+
+    $query = [uri]::EscapeDataString($InputObject)
 
     $uri = "https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&sl=$sourceLanguageCode&tl=$targetLanguageCode&dt=t&q=$query&dt=$returnTypeAsQueryParameter"
 
@@ -142,7 +142,7 @@ function Invoke-GoogleTranslate(
                         SynonymGroups = foreach ($synonymData in $set.entry)
                         {
                             [PSCustomObject]@{
-                                Register = $synonymData.label_info.register
+                                Register = $synonymData.label_inforegister
                                 Synonyms = @($synonymData.synonym)
                             }
                         }
@@ -197,7 +197,7 @@ function GetReturnTypeAsQueryParameter($ReturnType)
     return $result
 }
 
-$ListOfOneWordReturnType = @('Definition', 'Synonym', 'Example')
+$ListOfSingleWordReturnType = @('Definition', 'Synonym', 'Example')
 $ListReturnTypeThatTheTargetLanguageIsRequired = @('Translation', 'Alternative', 'Dictionary', 'Example')
 
 
