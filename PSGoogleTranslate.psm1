@@ -71,7 +71,12 @@ function Invoke-GoogleTranslate(
 
     $returnTypeAsQueryParameter = GetReturnTypeAsQueryParameter -ReturnType $ReturnType
 
-    $query = [uri]::EscapeDataString($InputObject)
+    $query = if ($ReturnType -eq 'Example')
+    {
+        # 'Example' does not work if there are capital letters
+        [uri]::EscapeDataString($InputObject.ToLower())
+    }
+    else { [uri]::EscapeDataString($InputObject) }
 
     $uri = "https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&sl=$sourceLanguageCode&tl=$targetLanguageCode&dt=t&q=$query&dt=$returnTypeAsQueryParameter"
 
