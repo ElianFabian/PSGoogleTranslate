@@ -27,10 +27,10 @@ class Language : System.Management.Automation.IValidateSetValuesGenerator
 
 <#
     .DESCRIPTION
-    A function that uses the free Google Translate API to retrieve information.
+    A function that uses the free Google Translate API to retrieve Datarmation.
 
     .PARAMETER InputObject
-    Text to translate or get some type of information depending on the ReturnType parameter.
+    Text to translate or get some type of Datarmation depending on the ReturnType parameter.
 
     .PARAMETER SourceLanguage
     Source language as code or English.
@@ -39,12 +39,12 @@ class Language : System.Management.Automation.IValidateSetValuesGenerator
     Target language as code or English.
 
     .PARAMETER ReturnType
-    The type of inforation to return, it can be any of these:
+    The type of Dataration to return, it can be any of these:
 
     [Translation, Alternative, LanguageDetection, LanguageDetectionAsEnglishWord, Dictionary, Definition, Synonym, Example]
 
     .NOTES
-    This function uses the free google translate api, if you try to do so many calls it will block (you will probably only find issues when doing parallelism).
+    This function uses the free google translate API, if you try doing parallelism it will block.
 #>
 function Invoke-GoogleTranslate(
     [Parameter(Mandatory=$true)]
@@ -103,14 +103,14 @@ function Invoke-GoogleTranslate(
                 SourceLanguage = $response.src
                 Dictionary = $response.dict | ForEach-Object { 
                     [PSCustomObject]@{
-                        WordType = $_.pos
+                        WordClass = $_.pos
                         Terms = $_.terms
-                        Entries = foreach ($wordInfo in $_.entry)
+                        Entries = foreach ($wordData in $_.entry)
                         {
                             [PSCustomObject]@{
-                                Word = $wordInfo.word
-                                ReverseTranslations = $wordInfo.reverse_translation
-                                Score = $wordInfo.score
+                                Word = $wordData.word
+                                ReverseTranslations = $wordData.reverse_translation
+                                Score = $wordData.score
                             }
                         }
                     }
@@ -121,7 +121,13 @@ function Invoke-GoogleTranslate(
         { 
             [PSCustomObject]@{
                 SourceLanguage = $response.src
-                Definitions = $response.definitions
+                Definitions = foreach ($definitionData in $response.definitions)
+                {
+                    [PSCustomObject]@{
+                        WordClass = $definitionData.pos
+                        Glossary = @($definitionData.entry | Select-Object -ExpandProperty gloss)
+                    }
+                }
             }
         }
         Synonym
@@ -132,8 +138,14 @@ function Invoke-GoogleTranslate(
                 SynonymSets = foreach ($set in $response.synsets)
                 {
                     [PSCustomObject]@{
-                        WordType = $set.pos
-                        SynonymGroups = $set.entry | ForEach-Object { ,@(,$_.synonym) }
+                        WordClass = $set.pos
+                        SynonymGroups = foreach ($synonymData in $set.entry)
+                        {
+                            [PSCustomObject]@{
+                                Register = $synonymData.label_info.register
+                                Synonyms = @($synonymData.synonym)
+                            }
+                        }
                     }
                 }
             }
