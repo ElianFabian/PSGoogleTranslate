@@ -101,7 +101,7 @@ function Invoke-GoogleTranslate(
                     | ForEach-Object { 
                         [PSCustomObject]@{
                             SourceLine = $_.Name
-                            TranslationAlternatives = ($_.Group[0].alternative | ForEach-Object { $_.word_postproc })
+                            TranslationAlternatives = @($_.Group[0].alternative | ForEach-Object { $_.word_postproc })
                         }
                     }
             }
@@ -160,11 +160,11 @@ function Invoke-GoogleTranslate(
             }
         }
         Example
-        { 
+        {
             [PSCustomObject]@{
                 SourceLanguage = $data.src
                 Translation = $data.sentences.trans
-                Examples = $data.examples[0] | Select-Object -ExpandProperty example | Select-Object -ExpandProperty text
+                Examples = @($data.examples[0] | Select-Object -ExpandProperty example | Select-Object -ExpandProperty text)
             }
         }
     }
