@@ -80,18 +80,22 @@ function Invoke-GoogleTranslate(
 
     $uri = "https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&sl=$sourceLanguageCode&tl=$targetLanguageCode&dt=t&q=$query&dt=$returnTypeAsQueryParameter"
 
-    $response = (Invoke-WebRequest -Uri $uri -Method Get).Content | ConvertFrom-Json
+    $response = Invoke-WebRequest -Uri $uri -Method Get
+
+    Write-Verbose -Message $response.Content -Verbose:$VerbosePreference
+
+    $data = $response.Content | ConvertFrom-Json
 
     $result = switch ($ReturnType)
     {
-        LanguageDetection { $response.src }
-        LanguageDetectionAsEnglishWord { $codeToLanguage[$response.src] }
-        Translation { $response.sentences | Select-Object -ExpandProperty trans | Join-String }
+        LanguageDetection { $data.src }
+        LanguageDetectionAsEnglishWord { $codeToLanguage[$data.src] }
+        Translation { $data.sentences | Select-Object -ExpandProperty trans | Join-String }
         Alternative
         {
             [PSCustomObject]@{
-                SourceLanguage = $response.src
-                AlternativesPerLine = $response.alternative_translations
+                SourceLanguage = $data.src
+                AlternativesPerLine = $data.alternative_translations
                     | Where-Object { $null -ne $_.alternative }
                     | Group-Object { $_.src_phrase }
                     | ForEach-Object { 
@@ -105,8 +109,8 @@ function Invoke-GoogleTranslate(
         Dictionary
         {
             [PSCustomObject]@{
-                SourceLanguage = $response.src
-                Dictionary = $response.dict | ForEach-Object { 
+                SourceLanguage = $data.src
+                Dictionary = $data.dict | ForEach-Object { 
                     [PSCustomObject]@{
                         WordClass = $_.pos
                         Terms = $_.terms
@@ -125,8 +129,8 @@ function Invoke-GoogleTranslate(
         Definition 
         { 
             [PSCustomObject]@{
-                SourceLanguage = $response.src
-                Definitions = foreach ($definitionData in $response.definitions)
+                SourceLanguage = $data.src
+                Definitions = foreach ($definitionData in $data.definitions)
                 {
                     [PSCustomObject]@{
                         WordClass = $definitionData.pos
@@ -138,9 +142,9 @@ function Invoke-GoogleTranslate(
         Synonym
         { 
             [PSCustomObject]@{
-                SourceLanguage = $response.src
-                Translation = $response.sentences.trans
-                SynonymSets = foreach ($set in $response.synsets)
+                SourceLanguage = $data.src
+                Translation = $data.sentences.trans
+                SynonymSets = foreach ($set in $data.synsets)
                 {
                     [PSCustomObject]@{
                         WordClass = $set.pos
@@ -158,9 +162,9 @@ function Invoke-GoogleTranslate(
         Example
         { 
             [PSCustomObject]@{
-                SourceLanguage = $response.src
-                Translation = $response.sentences.trans
-                Examples = $response.examples[0] | Select-Object -ExpandProperty example | Select-Object -ExpandProperty text
+                SourceLanguage = $data.src
+                Translation = $data.sentences.trans
+                Examples = $data.examples[0] | Select-Object -ExpandProperty example | Select-Object -ExpandProperty text
             }
         }
     }
