@@ -105,7 +105,14 @@ function Invoke-GoogleTranslate(
                     [PSCustomObject]@{
                         WordType = $_.pos
                         Terms = $_.terms
-                        Entry = $_.entry 
+                        Entries = foreach ($wordInfo in $_.entry)
+                        {
+                            [PSCustomObject]@{
+                                Word = $wordInfo.word
+                                ReverseTranslations = $wordInfo.reverse_translation
+                                Score = $wordInfo.score
+                            }
+                        }
                     }
                 }
             }
