@@ -179,7 +179,7 @@ function GetReturnTypeAsQueryParameter($ReturnType)
         Synonym { 'ss' }
         Example { 'ex' }
 
-        default { Write-Warning "Unexpected ReturnType '$ReturnType'" }
+        default { Write-Warning "Unexpected ReturnType value '$ReturnType'" }
     }
 
     return $result
