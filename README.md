@@ -1,6 +1,6 @@
 # PSGoogleTranslate
 
-<h3>A  PowerShell module to allow an easy way to interact with the free Google Translate API.</h3>
+<h3>A PowerShell module to easily use the free Google Translate API.</h3>
 
 ## How to use
 
