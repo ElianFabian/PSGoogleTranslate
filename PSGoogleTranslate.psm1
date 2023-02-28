@@ -81,7 +81,7 @@ function Invoke-GoogleTranslate(
     {
         LanguageDetection { $response.src }
         LanguageDetectionAsEnglishWord { $codeToLanguage[$response.src] }
-        Translation { $response.sentences | Select-Object -Property trans | Join-String }
+        Translation { $response.sentences | Select-Object -ExpandProperty trans | Join-String }
         Alternative
         {
             [PSCustomObject]@{
