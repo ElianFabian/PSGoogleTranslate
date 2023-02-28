@@ -186,7 +186,7 @@ function GetReturnTypeAsQueryParameter($ReturnType)
 }
 
 $ListOfOneWordReturnType = @('Definition', 'Synonym', 'Example')
-$ListReturnTypeThatTheTargetLanguageIsRequired = @('Translation', 'Alternative', 'Example')
+$ListReturnTypeThatTheTargetLanguageIsRequired = @('Translation', 'Alternative', 'Dictionary', 'Example')
 
 
 
