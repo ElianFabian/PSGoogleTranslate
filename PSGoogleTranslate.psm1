@@ -47,6 +47,7 @@ class Language : System.Management.Automation.IValidateSetValuesGenerator
     This function uses the free google translate api, if you try to do so many calls it will block (you will probably only find issues when doing parallelism).
 #>
 function Invoke-GoogleTranslate(
+    [Parameter(Mandatory=$true)]
     [string] $InputObject,
     [ValidateSet([Language])]
     [Alias('From')]
@@ -60,6 +61,10 @@ function Invoke-GoogleTranslate(
     if ($ListOfOneWordReturnType.Contains($ReturnType) -and ($InputObject.Trim().Contains(' ') -or $InputObject.Trim().Contains("`n")))
     {
         Write-Error "The return type '$ReturnType' only works for single words, your input is '$InputObject'."
+    }
+    if ($ListReturnTypeThatTheTargetLanguageIsRequired.Contains($ReturnType) -and -not $TargetLanguage)
+    {
+        Write-Error "You must specify a the TargetLanguage if the ReturnType is '$ReturnType'."
     }
 
     $sourceLanguageCode, $targetLanguageCode = TryConvertLanguageToCode $SourceLanguage $TargetLanguage
@@ -119,7 +124,7 @@ function Invoke-GoogleTranslate(
                 Translation = $response.sentences.trans
                 SynonymSets = foreach ($set in $response.synsets)
                 {
-                    @{
+                    [PSCustomObject]@{
                         WordType = $set.pos
                         SynonymGroups = $set.entry | ForEach-Object { ,@(,$_.synonym) }
                     }
@@ -174,6 +179,7 @@ function GetReturnTypeAsQueryParameter($ReturnType)
 }
 
 $ListOfOneWordReturnType = @('Definition', 'Synonym', 'Example')
+$ListReturnTypeThatTheTargetLanguageIsRequired = @('Translation', 'Alternative', 'Example')
 
 
 
