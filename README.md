@@ -144,3 +144,6 @@ $response.Examples
 
 The information I used to create the module I got it from [here](https://wiki.freepascal.org/Using_Google_Translate).
 Since it's not a full guide about how it works it's possible that there are features I have not implemented or some missing data when parsing the response.
+
+Since it's a free API don't expect high speed responses or even to be allowed to use parellelism.
+In a script about multiples sentences from one language to many I've got a speed of 6-8 transltions per second.
