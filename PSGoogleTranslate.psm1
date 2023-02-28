@@ -46,7 +46,7 @@ class Language : System.Management.Automation.IValidateSetValuesGenerator
     .NOTES
     This function uses the free google translate api, if you try to do so many calls it will block (you will probably only find issues when doing parallelism).
 #>
-function Invoke-GoogleTranslation(
+function Invoke-GoogleTranslate(
     [string] $InputObject,
     [ValidateSet([Language])]
     [Alias('From')]
