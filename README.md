@@ -97,7 +97,7 @@ $result.Definitions
 $response = Invoke-GoogleTranslate -ReturnType Synonym -InputObject "Water" -SourceLanguage English -TargetLanguage Spanish
 
 $response.SourceLanguage
-# es
+# en
 
 $response.Translation
 # Agua
@@ -122,7 +122,7 @@ $response.SynonymSets[0].SynonymGroups
 $response = Invoke-GoogleTranslate -ReturnType Example -InputObject "Water" -SourceLanguage English  -TargetLanguage Spanish
 
 $response.SourceLanguage
-# es
+# en
 
 $response.Translation
 # Agua
