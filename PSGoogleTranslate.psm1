@@ -16,10 +16,7 @@ class Language : System.Management.Automation.IValidateSetValuesGenerator
 {
     [String[]] GetValidValues()
     {
-        $languages = $global:languagesCsv | ForEach-Object { $_.Language }
-        $codes     = $global:languagesCsv | ForEach-Object { $_.Code }
-
-        return $languages + $codes
+        return $global:languagesCsv | ForEach-Object { $_.Language, $_.Code }
     }
 }
 
@@ -62,14 +59,14 @@ function Invoke-GoogleTranslate(
     {
         Write-Error "The return type '$ReturnType' only works for single words, your input is '$InputObject'."
     }
-    if ($ListReturnTypeThatTheTargetLanguageIsRequired.Contains($ReturnType) -and -not $TargetLanguage)
+    if ($ListOfReturnTypeThatTheTargetLanguageIsRequired.Contains($ReturnType) -and -not $TargetLanguage)
     {
         Write-Error "You must specify a the TargetLanguage if the ReturnType is '$ReturnType'."
     }
 
     $sourceLanguageCode, $targetLanguageCode = TryConvertLanguageToCode $SourceLanguage $TargetLanguage
 
-    $returnTypeAsQueryParameter = GetReturnTypeAsQueryParameter -ReturnType $ReturnType
+    $returnTypeAsQueryParameter = $ReturnTypeToQueryParameter[$ReturnType]
 
     $query = if ($ReturnType -eq 'Example')
     {
@@ -90,7 +87,13 @@ function Invoke-GoogleTranslate(
     {
         LanguageDetection { $data.src }
         LanguageDetectionAsEnglishWord { $codeToLanguage[$data.src] }
-        Translation { $data.sentences | Select-Object -ExpandProperty trans | Join-String }
+        Translation
+        {
+            [PSCustomObject]@{
+                SourceLanguage = $data.src
+                Translation = $data.sentences | Select-Object -ExpandProperty trans | Join-String
+            }
+        }
         Alternative
         {
             [PSCustomObject]@{
@@ -172,6 +175,8 @@ function Invoke-GoogleTranslate(
     return $result
 }
 
+
+
 function TryConvertLanguageToCode([string] $SourceLanguage, [string] $TargetLanguage)
 {
     $languageCodes = @($SourceLanguage, $TargetLanguage)
@@ -189,25 +194,17 @@ function TryConvertLanguageToCode([string] $SourceLanguage, [string] $TargetLang
 }
 
 # https://wiki.freepascal.org/Using_Google_Translate
-function GetReturnTypeAsQueryParameter($ReturnType)
-{
-    $result = switch ($ReturnType)
-    {
-        Translation { 't' }
-        Alternative { 'at' }
-        Dictionary { 'bd' }
-        Definition { 'md' }
-        Synonym { 'ss' }
-        Example { 'ex' }
-
-        default { Write-Warning "Unexpected ReturnType value '$ReturnType'" }
-    }
-
-    return $result
+$ReturnTypeToQueryParameter =
+@{
+    Translation = 't'
+    Alternative = 'at'
+    Dictionary  = 'bd'
+    Definition  = 'md'
+    Synonym     = 'ss'
 }
 
 $ListOfSingleWordReturnType = @('Definition', 'Synonym', 'Example')
-$ListReturnTypeThatTheTargetLanguageIsRequired = @('Translation', 'Alternative', 'Dictionary', 'Example')
+$ListOfReturnTypeThatTheTargetLanguageIsRequired = @('Translation', 'Alternative', 'Dictionary', 'Example')
 
 
 
