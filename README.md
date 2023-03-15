@@ -48,8 +48,8 @@ $response.AlternativesPerLine
 # Hoy vi un ciervo         {I saw a deer today, today i saw a deer}
 ~~~
 
-- **LanguageDetection**: given some text returns the language code of the detected language.
-- **LanguageDetectionAsEnglishWord**: given some text  returns the language name in English of the detected language.
+- **DetectedLanguage**: given some text returns the language code of the detected language.
+- **DetectedLanguageAsEnglishWord**: given some text returns the language name in English of the detected language.
 - **Dictionary**: given a word (it can be a single word or more if it is compound one like "get up") returns an object with the source language and a dictionary object:
 ~~~PowerShell
 $response = Invoke-GoogleTranslate -ReturnType Dictionary -InputObject "Ciervo" -SourceLanguage Spanish -TargetLanguage English
