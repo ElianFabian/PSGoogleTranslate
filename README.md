@@ -105,13 +105,13 @@ $response.SourceLanguage
 $response.Translation
 # Agua
 
-$response.SynonymSets
-# WordClass SynonymGroups
-# --------- -------------
-# noun      {System.Object[], System.Object[], System.Object[], System.Object[]}
-# verb      {System.Object[], System.Object[], System.Object[], System.Object[]…}
+$response.SynonymGroupsPerWordClass
+# WordClass Groups
+# --------- ------
+# noun      {@{Register=System.Object[]; Synonyms=System.Object[]}, @{Register=; Synonyms=System.Object[]}, @{Register=System.Object[]; Synonyms=System.Object[]}, @{Register=; Synonyms=System.Object[]}}
+# verb      {@{Register=System.Object[]; Synonyms=System.Object[]}, @{Register=; Synonyms=System.Object[]}, @{Register=; Synonyms=System.Object[]}, @{Register=; Synonyms=System.Object[]}…}
 
-$response.SynonymSets[0].SynonymGroups
+ $response.SynonymGroupsPerWordClass[0].Groups
 # Register    Synonyms
 # --------    --------
 # {rare}      {Adam's ale}
