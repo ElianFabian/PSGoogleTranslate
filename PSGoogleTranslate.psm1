@@ -2,11 +2,11 @@
 
 
 
-$global:languagesCsv = ConvertFrom-Csv -InputObject ( Get-Content "$PSScriptRoot/Languages.csv" -Raw )
+$global:languagesCsv = ConvertFrom-Csv -InputObject (Get-Content "$PSScriptRoot/Languages.csv" -Raw)
 
 $languageToCode = @{}
 $codeToLanguage = @{}
-foreach($row in $global:languagesCsv)
+foreach ($row in $global:languagesCsv)
 {
     $languageToCode[$row.Language] = $row.Code
     $codeToLanguage[$row.Code] = $row.Language
@@ -24,37 +24,49 @@ class Language : System.Management.Automation.IValidateSetValuesGenerator
 
 <#
     .DESCRIPTION
-    A function that uses the free Google Translate API to retrieve Datarmation.
+    A function that uses the free Google Translate API to retrieve data.
 
     .PARAMETER InputObject
-    Text to translate or get some type of Datarmation depending on the ReturnType parameter.
+    Text to translate or word that can be treated differently depending on the value of the ReturnType parameter.
 
     .PARAMETER SourceLanguage
-    Source language as code or English.
+    Source language as code or English word.
 
     .PARAMETER TargetLanguage
-    Target language as code or English.
+    Target language as code or English word.
 
     .PARAMETER ReturnType
-    The type of Dataration to return, it can be any of these:
+    The type of data to return, it can be any of these:
 
-    [Translation, Alternative, LanguageDetection, LanguageDetectionAsEnglishWord, Dictionary, Definition, Synonym, Example]
+    [Translation, Alternative, DetectedLanguage, DetectedLanguageAsEnglishWord, Dictionary, Definition, Synonym, Example]
+
+    .OUTPUTS
+    System.String
+    PSCustomObject
 
     .NOTES
-    This function uses the free google translate API, if you try doing parallelism it will block.
+    This function uses the free Google Translate API, if you try doing parallelism it will block.
 #>
-function Invoke-GoogleTranslate(
-    [Parameter(Mandatory=$true)]
-    [string] $InputObject,
-    [ValidateSet([Language])]
-    [Alias('From')]
-    [string] $SourceLanguage = 'auto',
-    [ValidateSet([Language])]
-    [Alias('To')]
-    [string] $TargetLanguage,
-    [ValidateSet('Translation', 'Alternative', 'LanguageDetection', 'LanguageDetectionAsEnglishWord', 'Dictionary', 'Definition', 'Synonym', 'Example')]
-    [string] $ReturnType = 'Translation'
-) {
+function Invoke-GoogleTranslate
+{
+    param
+    (
+        [Parameter(Mandatory=$true)]
+        [string] $InputObject,
+
+        [ValidateSet([Language])]
+        [Alias('From')]
+        [string] $SourceLanguage = 'auto',
+
+        [ValidateSet([Language])]
+        [Alias('To')]
+        [string] $TargetLanguage,
+
+        [ValidateSet('Translation', 'Alternative', 'DetectedLanguage', 'DetectedLanguageAsEnglishWord', 'Dictionary', 'Definition', 'Synonym', 'Example')]
+        [string] $ReturnType = 'Translation'
+    )
+
+
     if ($ReturnType -in $ListOfSingleWordReturnType -and ($InputObject.Trim().Contains(' ') -or $InputObject.Trim().Contains("`n")))
     {
         Write-Error "The return type '$ReturnType' only works for single words, your input is '$InputObject'."
@@ -85,8 +97,8 @@ function Invoke-GoogleTranslate(
 
     $result = switch ($ReturnType)
     {
-        LanguageDetection { $data.src }
-        LanguageDetectionAsEnglishWord { $codeToLanguage[$data.src] }
+        DetectedLanguage { $data.src }
+        DetectedLanguageAsEnglishWord { $codeToLanguage[$data.src] }
         Translation
         {
             [PSCustomObject]@{
