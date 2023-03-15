@@ -23,7 +23,10 @@ Example:
 ~~~PowerShell
 Invoke-GoogleTranslate -InputObject "Hoy vi un ciervo" -SourceLanguage Spanish -TargetLanguage English
 
-# Output: I saw a deer today
+# Output:
+# SourceLanguage Translation
+# -------------- -----------
+# es             I saw a deer today
 ~~~
 <br>
 
