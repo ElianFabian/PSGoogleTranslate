@@ -154,7 +154,7 @@ function Invoke-GoogleTranslate(
                         SynonymGroups = foreach ($synonymData in $set.entry)
                         {
                             [PSCustomObject]@{
-                                Register = $synonymData.label_inforegister
+                                Register = $synonymData.label_info.register
                                 Synonyms = @($synonymData.synonym)
                             }
                         }
