@@ -155,11 +155,11 @@ function Invoke-GoogleTranslate
             [PSCustomObject]@{
                 SourceLanguage = $data.src
                 Translation = $data.sentences.trans
-                SynonymSets = foreach ($set in $data.synsets)
+                SynonymGroupsPerWordClass = foreach ($set in $data.synsets)
                 {
                     [PSCustomObject]@{
                         WordClass = $set.pos
-                        SynonymGroups = foreach ($synonymData in $set.entry)
+                        Groups = foreach ($synonymData in $set.entry)
                         {
                             [PSCustomObject]@{
                                 Register = $synonymData.label_info.register
