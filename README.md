@@ -33,7 +33,7 @@ Invoke-GoogleTranslate -InputObject "Hoy vi un ciervo" -SourceLanguage Spanish -
 Now that we understand the basic functionality let's explore the other types of return values.
 
  These are all the possible values for the **$ReturnType** parameter:
-- **Translation** (default):  given some text  returns a string with the translation.
+- **Translation** (default):  given some text  returns an object with the translation and the source language.
 - **Alternative**: given some text  returns and object with the source language and the alternatives translations per line:
 ~~~PowerShell
 $response = Invoke-GoogleTranslate -ReturnType Alternative -InputObject "Hoy vi un ciervo`nDemasiado helado por hoy" -SourceLanguage Spanish -TargetLanguage English
