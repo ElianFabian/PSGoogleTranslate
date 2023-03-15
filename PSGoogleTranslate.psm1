@@ -1,7 +1,3 @@
-# Translation.psm1
-
-
-
 $global:languagesCsv = ConvertFrom-Csv -InputObject (Get-Content "$PSScriptRoot/Languages.csv" -Raw)
 
 $languageToCode = @{}
