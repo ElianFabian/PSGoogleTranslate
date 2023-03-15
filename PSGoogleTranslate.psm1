@@ -55,11 +55,11 @@ function Invoke-GoogleTranslate(
     [ValidateSet('Translation', 'Alternative', 'LanguageDetection', 'LanguageDetectionAsEnglishWord', 'Dictionary', 'Definition', 'Synonym', 'Example')]
     [string] $ReturnType = 'Translation'
 ) {
-    if ($ListOfSingleWordReturnType.Contains($ReturnType) -and ($InputObject.Trim().Contains(' ') -or $InputObject.Trim().Contains("`n")))
+    if ($ReturnType -in $ListOfSingleWordReturnType -and ($InputObject.Trim().Contains(' ') -or $InputObject.Trim().Contains("`n")))
     {
         Write-Error "The return type '$ReturnType' only works for single words, your input is '$InputObject'."
     }
-    if ($ListOfReturnTypeThatTheTargetLanguageIsRequired.Contains($ReturnType) -and -not $TargetLanguage)
+    if ($ReturnType -in $ListOfReturnTypeThatTheTargetLanguageIsRequired -and -not $TargetLanguage)
     {
         Write-Error "You must specify a the TargetLanguage if the ReturnType is '$ReturnType'."
     }
