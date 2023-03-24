@@ -87,7 +87,7 @@ function Invoke-GoogleTranslate
 
     $response = Invoke-WebRequest -Uri $uri -Method Get
 
-    Write-Verbose -Message $response.Content -Verbose:$VerbosePreference
+    Write-Verbose -Message $response.Content
 
     $data = $response.Content | ConvertFrom-Json
 
