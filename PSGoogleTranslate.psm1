@@ -47,6 +47,7 @@ function Invoke-GoogleTranslate
 {
     param
     (
+        [Alias('Query')]
         [Parameter(Mandatory=$true)]
         [string] $InputObject,
 
