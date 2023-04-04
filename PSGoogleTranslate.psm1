@@ -51,18 +51,17 @@ function Invoke-GoogleTranslate
         [Parameter(Mandatory=$true)]
         [string] $InputObject,
 
-        [ValidateSet([Language])]
         [Alias('From')]
+        [ValidateSet([Language])]
         [string] $SourceLanguage = 'auto',
 
-        [ValidateSet([Language])]
         [Alias('To')]
+        [ValidateSet([Language])]
         [string] $TargetLanguage,
 
         [ValidateSet('Translation', 'Alternative', 'DetectedLanguage', 'DetectedLanguageAsEnglishWord', 'Dictionary', 'Definition', 'Synonym', 'Example')]
         [string] $ReturnType = 'Translation'
     )
-
 
     if ($ReturnType -in $ListOfSingleWordReturnType -and ($InputObject.Trim().Contains(' ') -or $InputObject.Trim().Contains("`n")))
     {
