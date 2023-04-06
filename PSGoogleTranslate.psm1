@@ -109,14 +109,20 @@ function Invoke-GoogleTranslate
         Translation
         {
             [PSCustomObject]@{
-                SourceLanguage = $data.src
+                SourceLanguage              = $data.src
+                SourceLanguageAsEnglishWord = $codeToLanguage[$data.src]
+                TargetLanguage              = $targetLanguageCode
+                TargetLanguageAsEnglishWord = $codeToLanguage[$targetLanguageCode]
                 Translation = $data.sentences | Select-Object -ExpandProperty trans | Join-String
             }
         }
         Alternative
         {
             [PSCustomObject]@{
-                SourceLanguage = $data.src
+                SourceLanguage              = $data.src
+                SourceLanguageAsEnglishWord = $codeToLanguage[$data.src]
+                TargetLanguage              = $targetLanguageCode
+                TargetLanguageAsEnglishWord = $codeToLanguage[$targetLanguageCode]
                 AlternativesPerLine = $data.alternative_translations
                     | Where-Object { $null -ne $_.alternative }
                     | Group-Object { $_.src_phrase }
@@ -131,7 +137,8 @@ function Invoke-GoogleTranslate
         Dictionary
         {
             [PSCustomObject]@{
-                SourceLanguage = $data.src
+                SourceLanguage              = $data.src
+                SourceLanguageAsEnglishWord = $codeToLanguage[$data.src]
                 Dictionary = $data.dict | ForEach-Object { 
                     [PSCustomObject]@{
                         WordClass = $_.pos
@@ -151,7 +158,8 @@ function Invoke-GoogleTranslate
         Definition 
         { 
             [PSCustomObject]@{
-                SourceLanguage = $data.src
+                SourceLanguage              = $data.src
+                SourceLanguageAsEnglishWord = $codeToLanguage[$data.src]
                 Definitions = foreach ($definitionData in $data.definitions)
                 {
                     [PSCustomObject]@{
@@ -164,7 +172,8 @@ function Invoke-GoogleTranslate
         Synonym
         { 
             [PSCustomObject]@{
-                SourceLanguage = $data.src
+                SourceLanguage              = $data.src
+                SourceLanguageAsEnglishWord = $codeToLanguage[$data.src]
                 Translation = $data.sentences.trans
                 SynonymGroupsPerWordClass = foreach ($set in $data.synsets)
                 {
