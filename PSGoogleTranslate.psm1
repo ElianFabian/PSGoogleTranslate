@@ -20,7 +20,7 @@ class Language : System.Management.Automation.IValidateSetValuesGenerator
 
 <#
     .DESCRIPTION
-    A function that uses the free Google Translate API to retrieve data.
+    A function that uses the free Google Translate API.
 
     .PARAMETER InputObject
     Text to translate or word that can be treated differently depending on the value of the ReturnType parameter.
