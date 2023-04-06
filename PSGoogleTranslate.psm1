@@ -45,10 +45,9 @@ class TargetLanguage : System.Management.Automation.IValidateSetValuesGenerator
     .PARAMETER ReturnType
     The type of data to return, it can be any of these:
 
-    [Translation, Alternative, DetectedLanguage, DetectedLanguageAsEnglishWord, Dictionary, Definition, Synonym, Example]
+    [Translation, Alternative, DetectedLanguage, Dictionary, Definition, Synonym, Example]
 
     .OUTPUTS
-    System.String
     PSCustomObject
 
     .NOTES
@@ -70,7 +69,7 @@ function Invoke-GoogleTranslate
         [ValidateSet([TargetLanguage])]
         [string] $TargetLanguage,
 
-        [ValidateSet('Translation', 'Alternative', 'DetectedLanguage', 'DetectedLanguageAsEnglishWord', 'Dictionary', 'Definition', 'Synonym', 'Example')]
+        [ValidateSet('Translation', 'Alternative', 'DetectedLanguage', 'Dictionary', 'Definition', 'Synonym', 'Example')]
         [string] $ReturnType = 'Translation'
     )
 
@@ -104,8 +103,13 @@ function Invoke-GoogleTranslate
 
     $result = switch ($ReturnType)
     {
-        DetectedLanguage { $data.src }
-        DetectedLanguageAsEnglishWord { $codeToLanguage[$data.src] }
+        DetectedLanguage
+        {
+            [PSCustomObject]@{
+                SourceLanguage              = $data.src
+                SourceLanguageAsEnglishWord = $codeToLanguage[$data.src]
+            }
+        }
         Translation
         {
             [PSCustomObject]@{
