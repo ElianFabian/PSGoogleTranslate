@@ -8,11 +8,22 @@ foreach ($row in $global:languagesCsv)
     $codeToLanguage[$row.Code] = $row.Language
 }
 
-class Language : System.Management.Automation.IValidateSetValuesGenerator
+$global:pairOfSourceLanguageAndCode = $global:languagesCsv | ForEach-Object { $_.Language, $_.Code }
+$global:pairOfTargetLanguageAndCode = $global:languagesCsv | Where-Object { $_.Code -ine 'auto' } | ForEach-Object { $_.Language, $_.Code } 
+
+class SourceLanguage : System.Management.Automation.IValidateSetValuesGenerator
 {
     [String[]] GetValidValues()
     {
-        return $global:languagesCsv | ForEach-Object { $_.Language, $_.Code }
+        return $global:pairOfSourceLanguageAndCode
+    }
+}
+
+class TargetLanguage : System.Management.Automation.IValidateSetValuesGenerator
+{
+    [String[]] GetValidValues()
+    {
+        return $global:pairOfTargetLanguageAndCode
     }
 }
 
@@ -52,11 +63,11 @@ function Invoke-GoogleTranslate
         [string] $InputObject,
 
         [Alias('From')]
-        [ValidateSet([Language])]
+        [ValidateSet([SourceLanguage])]
         [string] $SourceLanguage = 'auto',
 
         [Alias('To')]
-        [ValidateSet([Language])]
+        [ValidateSet([TargetLanguage])]
         [string] $TargetLanguage,
 
         [ValidateSet('Translation', 'Alternative', 'DetectedLanguage', 'DetectedLanguageAsEnglishWord', 'Dictionary', 'Definition', 'Synonym', 'Example')]
