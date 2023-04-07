@@ -1,11 +1,12 @@
 $global:languagesCsv = ConvertFrom-Csv -InputObject (Get-Content "$PSScriptRoot/Languages.csv" -Raw)
 
-$languageToCode = @{}
-$codeToLanguage = @{}
+$LanguageToCode = @{}
+$CodeToLanguage = @{}
+
 foreach ($row in $global:languagesCsv)
 {
-    $languageToCode[$row.Language] = $row.Code
-    $codeToLanguage[$row.Code] = $row.Language
+    $LanguageToCode[$row.Language] = $row.Code
+    $CodeToLanguage[$row.Code] = $row.Language
 }
 
 $global:pairOfSourceLanguageAndCode = $global:languagesCsv | ForEach-Object { $_.Language, $_.Code }
@@ -47,31 +48,47 @@ class TargetLanguage : System.Management.Automation.IValidateSetValuesGenerator
 
     [Translation, Alternative, DetectedLanguage, Dictionary, Definition, Synonym, Example]
 
+    .PARAMETER AvailableLanguages
+    Return an array with all the available languages with the English name and language code.
+
     .OUTPUTS
     PSCustomObject
+    array
 
     .NOTES
     This function uses the free Google Translate API, if you try doing parallelism it will block.
 #>
 function Invoke-GoogleTranslate
 {
+    [OutputType([PSCustomObject], [PSCustomObject[]])]
     param
     (
         [Alias('Query')]
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, ParameterSetName='Translation')]
         [string] $InputObject,
 
+        [Parameter(ParameterSetName='Translation')]
         [Alias('From')]
         [ValidateSet([SourceLanguage])]
         [string] $SourceLanguage = 'auto',
 
+        [Parameter(ParameterSetName='Translation')]
         [Alias('To')]
         [ValidateSet([TargetLanguage])]
         [string] $TargetLanguage,
 
+        [Parameter(ParameterSetName='Translation')]
         [ValidateSet('Translation', 'Alternative', 'DetectedLanguage', 'Dictionary', 'Definition', 'Synonym', 'Example')]
-        [string] $ReturnType = 'Translation'
+        [string] $ReturnType = 'Translation',
+
+        [Parameter(ParameterSetName='AvailableLanguages')]
+        [switch] $AvailableLanguages
     )
+
+    if ($AvailableLanguages)
+    {
+        return $global:languagesCsv
+    }
 
     if ($ReturnType -in $ListOfSingleWordReturnType -and ($InputObject.Trim().Contains(' ') -or $InputObject.Trim().Contains("`n")))
     {
@@ -107,16 +124,16 @@ function Invoke-GoogleTranslate
         {
             [PSCustomObject]@{
                 SourceLanguage              = $data.src
-                SourceLanguageAsEnglishWord = $codeToLanguage[$data.src]
+                SourceLanguageAsEnglishWord = $CodeToLanguage[$data.src]
             }
         }
         Translation
         {
             [PSCustomObject]@{
                 SourceLanguage              = $data.src
-                SourceLanguageAsEnglishWord = $codeToLanguage[$data.src]
+                SourceLanguageAsEnglishWord = $CodeToLanguage[$data.src]
                 TargetLanguage              = $targetLanguageCode
-                TargetLanguageAsEnglishWord = $codeToLanguage[$targetLanguageCode]
+                TargetLanguageAsEnglishWord = $CodeToLanguage[$targetLanguageCode]
                 Translation = $data.sentences | Select-Object -ExpandProperty trans | Join-String
             }
         }
@@ -124,9 +141,9 @@ function Invoke-GoogleTranslate
         {
             [PSCustomObject]@{
                 SourceLanguage              = $data.src
-                SourceLanguageAsEnglishWord = $codeToLanguage[$data.src]
+                SourceLanguageAsEnglishWord = $CodeToLanguage[$data.src]
                 TargetLanguage              = $targetLanguageCode
-                TargetLanguageAsEnglishWord = $codeToLanguage[$targetLanguageCode]
+                TargetLanguageAsEnglishWord = $CodeToLanguage[$targetLanguageCode]
                 AlternativesPerLine = $data.alternative_translations
                     | Where-Object { $null -ne $_.alternative }
                     | Group-Object { $_.src_phrase }
@@ -142,7 +159,7 @@ function Invoke-GoogleTranslate
         {
             [PSCustomObject]@{
                 SourceLanguage              = $data.src
-                SourceLanguageAsEnglishWord = $codeToLanguage[$data.src]
+                SourceLanguageAsEnglishWord = $CodeToLanguage[$data.src]
                 Dictionary = $data.dict | ForEach-Object { 
                     [PSCustomObject]@{
                         WordClass = $_.pos
@@ -163,7 +180,7 @@ function Invoke-GoogleTranslate
         { 
             [PSCustomObject]@{
                 SourceLanguage              = $data.src
-                SourceLanguageAsEnglishWord = $codeToLanguage[$data.src]
+                SourceLanguageAsEnglishWord = $CodeToLanguage[$data.src]
                 Definitions = foreach ($definitionData in $data.definitions)
                 {
                     [PSCustomObject]@{
@@ -177,7 +194,7 @@ function Invoke-GoogleTranslate
         { 
             [PSCustomObject]@{
                 SourceLanguage              = $data.src
-                SourceLanguageAsEnglishWord = $codeToLanguage[$data.src]
+                SourceLanguageAsEnglishWord = $CodeToLanguage[$data.src]
                 Translation = $data.sentences.trans
                 SynonymGroupsPerWordClass = foreach ($set in $data.synsets)
                 {
@@ -213,13 +230,13 @@ function TryConvertLanguageToCode([string] $SourceLanguage, [string] $TargetLang
 {
     $languageCodes = @($SourceLanguage, $TargetLanguage)
 
-    if ($languageToCode.ContainsKey($SourceLanguage))
+    if ($LanguageToCode.ContainsKey($SourceLanguage))
     {
-        $languageCodes[0] = $languageToCode[$SourceLanguage]
+        $languageCodes[0] = $LanguageToCode[$SourceLanguage]
     }
-    if ($languageToCode.ContainsKey($TargetLanguage))
+    if ($LanguageToCode.ContainsKey($TargetLanguage))
     {
-        $languageCodes[1] = $languageToCode[$TargetLanguage]
+        $languageCodes[1] = $LanguageToCode[$TargetLanguage]
     }
 
     return $languageCodes
