@@ -53,7 +53,7 @@ class TargetLanguage : System.Management.Automation.IValidateSetValuesGenerator
 
     .OUTPUTS
     PSCustomObject
-    array
+    PSCustomObject[]
 
     .NOTES
     This function uses the free Google Translate API, if you try doing parallelism it will block.
