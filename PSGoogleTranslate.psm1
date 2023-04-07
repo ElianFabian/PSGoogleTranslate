@@ -67,18 +67,18 @@ function Invoke-GoogleTranslate
         [Parameter(Mandatory=$true, ParameterSetName='Translation')]
         [string] $InputObject,
 
-        [Parameter(ParameterSetName='Translation')]
         [Alias('From')]
         [ValidateSet([SourceLanguage])]
+        [Parameter(ParameterSetName='Translation')]
         [string] $SourceLanguage = 'auto',
 
-        [Parameter(ParameterSetName='Translation')]
         [Alias('To')]
         [ValidateSet([TargetLanguage])]
+        [Parameter(ParameterSetName='Translation')]
         [string] $TargetLanguage,
 
-        [Parameter(ParameterSetName='Translation')]
         [ValidateSet('Translation', 'Alternative', 'DetectedLanguage', 'Dictionary', 'Definition', 'Synonym', 'Example')]
+        [Parameter(ParameterSetName='Translation')]
         [string] $ReturnType = 'Translation',
 
         [Parameter(ParameterSetName='AvailableLanguages')]
