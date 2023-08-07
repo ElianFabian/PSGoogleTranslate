@@ -64,7 +64,7 @@ function Invoke-GoogleTranslate
     param
     (
         [Alias('Query')]
-        [Parameter(Mandatory=$true, ParameterSetName='Translation')]
+        [Parameter(Mandatory=$true, ParameterSetName='Translation', ValueFromPipeline = $true)]
         [string] $InputObject,
 
         [Alias('From')]
