@@ -25,7 +25,7 @@ SourceLanguage TargetLanguage Translation
 es             en             I saw a deer today
 ```
 
-The default source language is `auto`, and the default target language is `en`.
+The default source language is `auto`.
 
 ## Discover supported languages
 
