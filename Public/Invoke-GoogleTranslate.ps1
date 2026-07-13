@@ -61,7 +61,7 @@ function Invoke-GoogleTranslate {
 
         $query = if ($ReturnType -eq 'Example') {
             # 'Example' does not work if there are capital letters
-            [uri]::EscapeDataString($InputObject.ToLower())
+            [uri]::EscapeDataString($InputObject.ToLowerInvariant())
         }
         else { [uri]::EscapeDataString($InputObject) }
 
