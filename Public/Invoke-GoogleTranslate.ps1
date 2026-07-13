@@ -1,18 +1,17 @@
 # https://wiki.freepascal.org/Using_Google_Translate
 $ReturnTypeToQueryParameter = @{
-    Translation = 't'
-    Alternative = 'at'
-    #Transcription = 'rm'
-    Dictionary  = 'bd'
-    Definition  = 'md'
-    Synonym     = 'ss'
-    Example     = 'ex'
-    #SeeAlso    = 'rw'
+    Translation   = 't'
+    Alternative   = 'at'
+    Transcription = 'rm'
+    Dictionary    = 'bd'
+    Definition    = 'md'
+    Synonym       = 'ss'
+    Example       = 'ex'
+    #SeeAlso    = 'rw' # it seems to be the same as Translation
 }
 
 $ListOfSingleWordReturnType = @('Definition', 'Synonym', 'Example')
 $ListOfReturnTypeThatTheTargetLanguageIsRequired = @('Translation', 'Alternative', 'Dictionary', 'Example')
-
 
 
 function Invoke-GoogleTranslate {
@@ -23,7 +22,7 @@ function Invoke-GoogleTranslate {
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [string] $InputObject,
 
-        [ValidateSet('Translation', 'Alternative', 'DetectedLanguage', 'Dictionary', 'Definition', 'Synonym', 'Example')]
+        [ValidateSet('Translation', 'Alternative', 'Transcription', 'DetectedLanguage', 'Dictionary', 'Definition', 'Synonym', 'Example')]
         [string] $ReturnType = 'Translation'
     )
 
@@ -36,7 +35,7 @@ function Invoke-GoogleTranslate {
 
         $targetAttributes = New-Object System.Collections.ObjectModel.Collection[System.Attribute]
         $targetParamAttribute = New-Object System.Management.Automation.ParameterAttribute
-        $targetParamAttribute.Mandatory = $true
+        $targetParamAttribute.Mandatory = $ReturnType -in $ReturnTypeThatTheTargetLanguageIsRequired
         $targetAttributes.Add($targetParamAttribute)
         
         $targetParam = New-Object System.Management.Automation.RuntimeDefinedParameter('TargetLanguageCode', [string], $targetAttributes)
@@ -47,7 +46,7 @@ function Invoke-GoogleTranslate {
 
     begin {
         $SourceLanguageCode = if ($PsBoundParameters.ContainsKey('SourceLanguageCode')) { $PsBoundParameters['SourceLanguageCode'] } else { 'auto' }
-        $TargetLanguageCode = if ($PsBoundParameters.ContainsKey('TargetLanguageCode')) { $PsBoundParameters['TargetLanguageCode'] } else { 'en' }
+        $TargetLanguageCode = $PsBoundParameters['TargetLanguageCode']
     }
 
     process {
@@ -68,6 +67,8 @@ function Invoke-GoogleTranslate {
 
         $uri = "https://translate.googleapis.com/translate_a/single?client=gtx&dj=1&q=$query&sl=$SourceLanguageCode&tl=$TargetLanguageCode&dt=t&dt=$returnTypeAsQueryParameter"
 
+        Write-Verbose -Message "Requesting: $uri"
+
         try {
             $data = Invoke-RestMethod -Uri $uri -Method Get
 
@@ -78,20 +79,20 @@ function Invoke-GoogleTranslate {
             $result = switch ($ReturnType) {
                 DetectedLanguage {
                     [PSCustomObject]@{
-                        SourceLanguage = $data.src
+                        SourceLanguageCode = $data.src
                     }
                 }
                 Translation {
                     [PSCustomObject]@{
-                        SourceLanguage = $data.src
-                        TargetLanguage = $TargetLanguageCode
-                        Translation    = $data.sentences | Select-Object -ExpandProperty trans | Join-String
+                        SourceLanguageCode = $data.src
+                        TargetLanguageCode = $TargetLanguageCode
+                        Translation        = $data.sentences | Select-Object -ExpandProperty trans | Join-String
                     }
                 }
                 Alternative {
                     [PSCustomObject]@{
-                        SourceLanguage      = $data.src
-                        TargetLanguage      = $TargetLanguageCode
+                        SourceLanguageCode  = $data.src
+                        TargetLanguageCode  = $TargetLanguageCode
                         AlternativesPerLine = $data.alternative_translations
                         | Where-Object { $null -ne $_.alternative }
                         | Group-Object { $_.src_phrase }
@@ -101,6 +102,16 @@ function Invoke-GoogleTranslate {
                                 TranslationAlternatives = @($_.Group[0].alternative | ForEach-Object { $_.word_postproc })
                             }
                         }
+                    }
+                }
+                Transcription {
+                    [PSCustomObject]@{
+                        SourceLanguageCode  = $data.src
+                        TargetLanguageCode  = $TargetLanguageCode
+                        Translation         = $data.sentences[0].trans
+                        Original            = $data.sentences[0].orig
+                        Transliteration     = $data.sentences[1].src_translit
+                        Confidence          = $data.confidence
                     }
                 }
                 Dictionary {
